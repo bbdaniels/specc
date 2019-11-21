@@ -7,19 +7,21 @@ cap prog drop specc
 prog def specc
 
   // Syntax setup
-  syntax [anything] using/ , ///
+  syntax [anything] using/  ///
+    [if] ///
+    , ///
     [*]
 
   // Parse subcommand
   gettoken subcommand anything : anything
 
   // Make sure some subcommand is specified
-  if !inlist("`subcommand'","initialize","remove") {
-    di as err "{bf:specc} requires [initialize] to be specified. Type {bf:help specc} for details."
+  if !inlist("`subcommand'","initialize","remove","new","report","build","run") {
+    di as err "{bf:specc} requires [initialize], [remove], [report], [new method], [build], [run] to be specified. Type {bf:help specc} for details."
     error 197
   }
 
-  specc_`subcommand' `anything' using "`using'" , `options'
+  specc_`subcommand' `anything' using "`using'" `if', `options'
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -37,21 +39,14 @@ prog def specc_initialize
   mkdir `"`using'"' , public
   preserve
     clear
-      set obs 1
-      gen class = "model"
-      gen method = "main"
-      gen description = "Main Specification"
-      gen dofile = "/model/main.do"
     save `"`using'/specc.dta"' , emptyok
   restore
 
   // Set up model class and main method
-  mkdir `"`using'/model/"' , public
-    file open main using `"`using'/model/main.do"' , write
-    file write main "// Main Specification" _n _n
-    file write main "mat results = nullmat(results) \ [b,ll,ul,p]" _n _n
-    file write main "// End of Main Specification" _n
-    file close main
+  specc new method ///
+    "mat results = nullmat(results) \ [b,ll,ul,p]" ///
+    using "`using'" ///
+    , class(model) method(main) description(Main Specification)
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -68,6 +63,65 @@ prog def specc_remove
   // Create empty dataset for specc storage
   rm `"`using'/*.*"'
   rmdir `"`using'"'
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// Build subcommand
+cap prog drop specc_build
+prog def specc_build
+
+  // Syntax setup
+  syntax anything using/ , ///
+    clear [*]
+
+  // Create empty dofile for specc storage
+  cap rm `"`using'/specc.do"'
+
+  cap file close main
+  file open main using `"`using'/`class'/specc.do"' , write
+  file write main "/* SPECC Buildfile to iterate over:" _n
+  file write main "`anything'" _n
+  file write main "*/" _n _n
+
+  foreach class in `anything' {
+    file write main "\``class''" _n _n
+  }
+
+  file write main "// End of SPECC Buildfile" _n
+  file close main
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// Report subcommand
+cap prog drop specc_report
+prog def specc_report
+
+  // Syntax setup
+  syntax using/ [if], ///
+    [class(string asis)] [method(string asis)] [*]
+
+  // Load and display report
+  if "`class'" == "" {
+    preserve
+      use `"`using'/specc.dta"' `if', clear
+      li
+    restore
+  }
+
+  // Display contents if requested
+  if "`class'" != "" {
+    file open main using `"`using'/`class'/`method'.do"' , read
+    file read main line
+    while r(eof)==0 {
+    	display "`line'"
+    	file read main line
+    }
+    file close main
+  }
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -114,16 +168,35 @@ end
 
   // -------------------------------------------------------------------------------------------
   // NEW METHOD subcommand
-  cap prog drop specc_new_class
-  prog def specc_new_class
+  cap prog drop specc_new_method
+  prog def specc_new_method
 
     // Syntax setup
-    syntax using/ , ///
+    syntax [anything] using/ , ///
+      class(string asis) method(string asis) DESCription(string asis) ///
       [*]
 
-    // Load dataset for specc storage
+    // Append new method dataset for specc storage
     preserve
-    use `"`using'/specc.dta"' , clear
+    clear
+      set obs 1
+      gen class = "`class'"
+      gen method = "`method'"
+      gen dofile = "/`class'/`method'.do"
+      gen timestamp = "`c(current_date)' `c(current_time)'"
+      gen description = "`description'"
+
+      append using `"`using'/specc.dta"'
+        save `"`using'/specc.dta"' , replace
+
+    // Set up method dofile
+    cap mkdir `"`using'/`class'/"' , public
+      cap file close main
+      file open main using `"`using'/`class'/`method'.do"' , write
+      file write main "// `description'" _n _n
+      file write main `anything' _n _n
+      file write main "// End of `description'" _n
+      file close main
 
   end
   // -------------------------------------------------------------------------------------------
