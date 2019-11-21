@@ -80,8 +80,8 @@ prog def specc_build
   cap rm `"`using'/specc.do"'
 
   cap file close main
-  file open main using `"`using'/`class'/specc.do"' , write
-  file write main "/* SPECC Buildfile to iterate over:" _n
+  file open main using `"`using'/specc.do"' , write
+  file write main "/* SPECC Runfile will iterate over:" _n
   file write main "`anything'" _n
   file write main "*/" _n _n
 
@@ -89,7 +89,32 @@ prog def specc_build
     file write main "\``class''" _n _n
   }
 
-  file write main "// End of SPECC Buildfile" _n
+  file write main "// End of SPECC Runfile" _n
+  file close main
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// Build subcommand
+cap prog drop specc_run
+prog def specc_run
+
+  // Syntax setup
+  syntax using/ , ///
+    clear [*]
+
+  // Create empty dofile for specc storage
+  cap file close main
+  file open main using `"`using'/specc.do"' , read
+    di "SPECC Runfile detected at {browse `using'/specc.do}."
+    cap file close main
+    file open main using `"`using'/specc.do"' , read
+    file read main line
+    forv i = 1/2 {
+      display "`line'"
+      if `i' == 1 file read main line
+    }
   file close main
 
 end
@@ -114,6 +139,7 @@ prog def specc_report
 
   // Display contents if requested
   if "`class'" != "" {
+    cap file close main
     file open main using `"`using'/`class'/`method'.do"' , read
     file read main line
     while r(eof)==0 {
@@ -121,6 +147,18 @@ prog def specc_report
     	file read main line
     }
     file close main
+  }
+
+  cap confirm file `"`using'/specc.do"'
+  if _rc == 0 {
+    di "SPECC Runfile detected at {browse `using'/specc.do}."
+    cap file close main
+    file open main using `"`using'/specc.do"' , read
+    file read main line
+    forv i = 1/2 {
+    	display "`line'"
+    	file read main line
+    }
   }
 
 end
@@ -148,23 +186,6 @@ prog def specc_new
 
 end
 // ---------------------------------------------------------------------------------------------
-
-  // -------------------------------------------------------------------------------------------
-  // NEW CLASS subcommand
-  cap prog drop specc_new_class
-  prog def specc_new_class
-
-    // Syntax setup
-    syntax using/ , ///
-      [*]
-
-    // Load dataset for specc storage
-    preserve
-    use `"`using'/specc.dta"' , clear
-
-
-  end
-  // -------------------------------------------------------------------------------------------
 
   // -------------------------------------------------------------------------------------------
   // NEW METHOD subcommand
