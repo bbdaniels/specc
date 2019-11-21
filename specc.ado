@@ -135,6 +135,18 @@ prog def specc_report
       use `"`using'/specc.dta"' `if', clear
       li
     restore
+
+    cap confirm file `"`using'/specc.do"'
+    if _rc == 0 {
+      di "SPECC Runfile detected at {browse `using'/specc.do}."
+      cap file close main
+      file open main using `"`using'/specc.do"' , read
+      file read main line
+      forv i = 1/2 {
+      	display "`line'"
+      	file read main line
+      }
+    }
   }
 
   // Display contents if requested
@@ -147,18 +159,6 @@ prog def specc_report
     	file read main line
     }
     file close main
-  }
-
-  cap confirm file `"`using'/specc.do"'
-  if _rc == 0 {
-    di "SPECC Runfile detected at {browse `using'/specc.do}."
-    cap file close main
-    file open main using `"`using'/specc.do"' , read
-    file read main line
-    forv i = 1/2 {
-    	display "`line'"
-    	file read main line
-    }
   }
 
 end
@@ -199,6 +199,7 @@ end
 
     // Append new method dataset for specc storage
     preserve
+    qui {
     clear
       set obs 1
       gen class = "`class'"
@@ -209,6 +210,7 @@ end
 
       append using `"`using'/specc.dta"'
         save `"`using'/specc.dta"' , replace
+    }
 
     // Set up method dofile
     cap mkdir `"`using'/`class'/"' , public
