@@ -126,10 +126,11 @@ prog def specc_run
 
   // Create iteration loop
   local n_params: word count `params'
+  tempname current max
 
-    mat current = J(1,`n_params',1)
-      mat colnames current = `params'
-    mat max = J(1,`n_params',1)
+    mat `current' = J(1,`n_params',1)
+      mat colnames `current' = `params'
+    mat `max' = J(1,`n_params',1)
 
     forv i = 1/`n_params' {
       local c`i' : word `i' of `params'
@@ -138,7 +139,7 @@ prog def specc_run
         use `"`using'/specc.dta"' `if', clear
         qui levelsof method if class == "`c`i''" , local(m`i')
           local max_`c`i'' : word count `m`i''
-          mat max[1,`i'] = `max_`c`i'''
+          mat `max'[1,`i'] = `max_`c`i'''
         qui levelsof description if class == "`c`i''" , local(d`i')
       restore
 
@@ -149,8 +150,8 @@ prog def specc_run
 
 
 
-  matlist current
-  matlist max
+  matlist `current'
+  matlist `max'
 
 end
 // ---------------------------------------------------------------------------------------------
