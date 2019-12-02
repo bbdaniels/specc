@@ -7,13 +7,19 @@ cap prog drop specc
 prog def specc
 
   // Syntax setup
-  syntax [anything] using/  ///
+  syntax [anything] [using/]  ///
     [if] ///
     , ///
     [*]
 
+  // Default specc directory
+  if "`using'" == "" local using "specc"
+
   // Parse subcommand
   gettoken subcommand anything : anything
+
+  // Allow abbreviations
+  if "`subcommand'" == "init" local subcommand = "initialize"
 
   // Make sure some subcommand is specified
   if !inlist("`subcommand'","initialize","remove","new","report","build","run") {
@@ -126,11 +132,11 @@ cap prog drop specc_report
 prog def specc_report
 
   // Syntax setup
-  syntax using/ [if], ///
-    [class(string asis)] [method(string asis)] [*]
+  syntax [anything] using/ [if], ///
+    [*]
 
   // Load and display report
-  if "`class'" == "" {
+  if "`anything'" == "" {
     preserve
       use `"`using'/specc.dta"' `if', clear
       li
@@ -150,7 +156,9 @@ prog def specc_report
   }
 
   // Display contents if requested
-  if "`class'" != "" {
+  if "`anything'" != "" {
+    gettoken class anything : anything
+    gettoken method anything : anything
     cap file close main
     file open main using `"`using'/`class'/`method'.do"' , read
     file read main line
