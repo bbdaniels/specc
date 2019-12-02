@@ -172,64 +172,45 @@ prog def specc_report
 end
 // ---------------------------------------------------------------------------------------------
 
-// ---------------------------------------------------------------------------------------------
-// NEW subcommand
+// -------------------------------------------------------------------------------------------
+// NEW METHOD subcommand
 cap prog drop specc_new
 prog def specc_new
 
   // Syntax setup
-  syntax [anything] using/ , ///
+  syntax anything using/ , ///
+    DESCription(string asis) ///
     [*]
 
-  // Parse subcommand
-  gettoken subcommand anything : anything
+  // Get info
+  gettoken class anything : anything
+  gettoken method anything : anything
 
-  // Make sure some subcommand is specified
-  if !inlist("`subcommand'","class","method") {
-    di as err "{bf:specc new} requires a [class] or [method] to be specified. Type {bf:help specc} for details."
-    error 197
+  // Append new method dataset for specc storage
+  preserve
+  qui {
+  clear
+    set obs 1
+    gen class = "`class'"
+    gen method = "`method'"
+    gen dofile = "/`class'/`method'.do"
+    gen timestamp = "`c(current_date)' `c(current_time)'"
+    gen description = "`description'"
+
+    append using `"`using'/specc.dta"'
+      save `"`using'/specc.dta"' , replace
   }
 
-  specc_new_`subcommand' `anything' using "`using'" , `options'
+  // Set up method dofile
+  cap mkdir `"`using'/`class'/"' , public
+    cap file close main
+    file open main using `"`using'/`class'/`method'.do"' , write
+    file write main "// `description'" _n _n
+    file write main `anything' _n _n
+    file write main "// End of `description'" _n
+    file close main
 
 end
-// ---------------------------------------------------------------------------------------------
-
-  // -------------------------------------------------------------------------------------------
-  // NEW METHOD subcommand
-  cap prog drop specc_new_method
-  prog def specc_new_method
-
-    // Syntax setup
-    syntax [anything] using/ , ///
-      class(string asis) method(string asis) DESCription(string asis) ///
-      [*]
-
-    // Append new method dataset for specc storage
-    preserve
-    qui {
-    clear
-      set obs 1
-      gen class = "`class'"
-      gen method = "`method'"
-      gen dofile = "/`class'/`method'.do"
-      gen timestamp = "`c(current_date)' `c(current_time)'"
-      gen description = "`description'"
-
-      append using `"`using'/specc.dta"'
-        save `"`using'/specc.dta"' , replace
-    }
-
-    // Set up method dofile
-    cap mkdir `"`using'/`class'/"' , public
-      cap file close main
-      file open main using `"`using'/`class'/`method'.do"' , write
-      file write main "// `description'" _n _n
-      file write main `anything' _n _n
-      file write main "// End of `description'" _n
-      file close main
-
-  end
-  // -------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
 // End of adofile
