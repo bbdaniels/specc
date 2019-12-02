@@ -22,8 +22,8 @@ prog def specc
   if "`subcommand'" == "init" local subcommand = "initialize"
 
   // Make sure some subcommand is specified
-  if !inlist("`subcommand'","initialize","remove","new","report","build","run") {
-    di as err "{bf:specc} requires [initialize], [remove], [report], [new method], [build], [run] to be specified. Type {bf:help specc} for details."
+  if !inlist("`subcommand'","initialize","remove","new","report","set","run") {
+    di as err "{bf:specc} requires [initialize], [remove], [report], [new], [set], [run] to be specified. Type {bf:help specc} for details."
     error 197
   }
 
@@ -75,12 +75,12 @@ end
 
 // ---------------------------------------------------------------------------------------------
 // Build subcommand
-cap prog drop specc_build
-prog def specc_build
+cap prog drop specc_set
+prog def specc_set
 
   // Syntax setup
   syntax anything using/ , ///
-    clear [*]
+    reset [*]
 
   // Create empty dofile for specc storage
   cap rm `"`using'/specc.do"'
