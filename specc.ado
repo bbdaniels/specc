@@ -102,15 +102,15 @@ end
 // ---------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------------------------
-// Build subcommand
+// Run subcommand
 cap prog drop specc_run
 prog def specc_run
 
   // Syntax setup
   syntax using/ , ///
-    clear [*]
+    [*]
 
-  // Create empty dofile for specc storage
+  // Read out execution order
   cap file close main
   file open main using `"`using'/specc.do"' , read
     di "SPECC Runfile detected at {browse `using'/specc.do}."
@@ -122,6 +122,21 @@ prog def specc_run
       if `i' == 1 file read main line
     }
   file close main
+
+  // Create iteration loop
+  local n_params: word count `line'
+  forv i = 1/`n_params' {
+    local c`i' : word `i' of `line'
+
+    preserve
+      use `"`using'/specc.dta"' `if', clear
+      qui levelsof method if class == "`c`i''" , local(m`i')
+      qui levelsof description if class == "`c`i''" , local(d`i')
+    restore
+
+    di `" `c`i'' :: `d`i''   "'
+
+  }
 
 end
 // ---------------------------------------------------------------------------------------------
