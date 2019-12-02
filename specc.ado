@@ -122,21 +122,35 @@ prog def specc_run
       if `i' == 1 file read main line
     }
   file close main
+  local params = "`line'"
 
   // Create iteration loop
-  local n_params: word count `line'
-  forv i = 1/`n_params' {
-    local c`i' : word `i' of `line'
+  local n_params: word count `params'
 
-    preserve
-      use `"`using'/specc.dta"' `if', clear
-      qui levelsof method if class == "`c`i''" , local(m`i')
-      qui levelsof description if class == "`c`i''" , local(d`i')
-    restore
+    mat current = J(1,`n_params',1)
+      mat colnames current = `params'
+    mat max = J(1,`n_params',1)
 
-    di `" `c`i'' :: `d`i''   "'
+    forv i = 1/`n_params' {
+      local c`i' : word `i' of `params'
 
-  }
+      preserve
+        use `"`using'/specc.dta"' `if', clear
+        qui levelsof method if class == "`c`i''" , local(m`i')
+          local max_`c`i'' : word count `m`i''
+          mat max[1,`i'] = `max_`c`i'''
+        qui levelsof description if class == "`c`i''" , local(d`i')
+      restore
+
+      di `" `c`i'' :: `d`i''   "'
+    }
+
+  // Loop over combinations
+
+
+
+  matlist current
+  matlist max
 
 end
 // ---------------------------------------------------------------------------------------------
