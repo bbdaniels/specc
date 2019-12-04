@@ -108,6 +108,16 @@ end
 // ---------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------------------------
+cap prog drop specc_results
+prog def specc_results
+
+  syntax anything using/ , ///
+    [*]
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
 // Run subcommand
 cap prog drop specc_run
 prog def specc_run
@@ -178,6 +188,9 @@ prog def specc_run
         local theMethod : word `theIndex' of `m`i''
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
         run `"`using'/`theClass'/`theMethod'.do"'
+        if "`theClass'" == "model" {
+          specc results
+        }
       }
 
       // Quit if this was the max iteration
@@ -316,8 +329,8 @@ prog def specc_new
       file write main "local ll =" _n
       file write main "local ul =" _n
       file write main "local p =" _n
-      file write main "cap mat drop _spec_results"
-      file write main "mat _spec_results = [\`b',\`ll',\`ul',\`p']" _n _n
+      file write main "cap mat drop _specc_results"
+      file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n _n
     }
     file write main "// End of `description'" _n
     file close main
