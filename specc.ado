@@ -206,8 +206,8 @@ prog def specc_run
 
   // Build graph
   preserve
-    clear
-    svmat _all_results , n(col)
+    qui clear
+    qui svmat _all_results , n(col)
     sort b
     gen n = _n
 
