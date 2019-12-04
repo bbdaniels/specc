@@ -171,7 +171,7 @@ prog def specc_run
         local theClass = "`c`i''"
         local theDesc : word `theIndex' of `d`i''
         local theMethod : word `theIndex' of `m`i''
-        di "`theDesc' (`using'/`theClass'/`theMethod'.do)"
+        di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
       }
 
       // Quit if this was the max iteration
