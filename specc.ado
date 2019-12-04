@@ -114,7 +114,7 @@ prog def specc_run
 
   // Syntax setup
   syntax using/ , ///
-    [sort] [*]
+    [sort] [save] [*]
 
   // Read out execution order
   cap file close main
@@ -217,6 +217,7 @@ prog def specc_run
     qui svmat _all_results , n(col)
     sort b
     if "`sort'" != "" sort `line'
+    if "`save'" != "" save `"`using'/results.dta"' , replace
     gen n = _n
 
     forv i = 1/`n_params' {
