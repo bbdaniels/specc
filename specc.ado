@@ -276,6 +276,15 @@ prog def specc_new
   gettoken class anything : anything
   gettoken method anything : anything
 
+  // Make sure no conflicts
+  preserve
+    use `"`using'/specc.dta"' , clear
+    count if class == "`class'" & method == "`method'"
+    if `r(N)' > 0 {
+      di as err "The `method' method already exists in the `class' class."
+      error 110
+    }
+
   // Append new method dataset for specc storage
   preserve
   qui {
