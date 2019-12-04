@@ -176,6 +176,7 @@ prog def specc_run
         local theClass = "`c`i''"
         local theMethod : word `theIndex' of `m`i''
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
+        run `"`using'/`theClass'/`theMethod'.do"'
       }
 
       // Quit if this was the max iteration
@@ -208,12 +209,13 @@ prog def specc_report
 
   // Syntax setup
   syntax [anything] using/ [if], ///
-    [*]
+    [sort] [*]
 
   // Load and display report
   if "`anything'" == "" {
     preserve
       use `"`using'/specc.dta"' `if', clear
+      if "`sort'" != "" sort class method
       li
     restore
 
