@@ -148,10 +148,51 @@ prog def specc_run
 
   // Loop over combinations
 
+    // Calculate total combinations
+    local total = 1
+    forv i = 1/`n_params' {
+      local next = `max'[1,`i']
+      local total = `total'*`next'
+    }
 
+    // Set up to loop over all differences
+    tempname diffmat
 
-  matlist `current'
-  matlist `max'
+    local diff = 1
+    local counter = 0
+    while `diff' != 0 {
+      local ++counter
+      di " "
+      di "(`counter'/`total') Running:"
+
+      // Get the dofile list
+      forv i = 1/`n_params' {
+        local theIndex = `current'[1,`i']
+        local theClass = "`c`i''"
+        local theDesc : word `theIndex' of `d`i''
+        local theMethod : word `theIndex' of `m`i''
+        di "`theDesc' (`using'/`theClass'/`theMethod'.do)"
+      }
+
+      // Quit if this was the max iteration
+      mat `diffmat' = (`current' - `max')*(`current' - `max')'
+      local diff = `diffmat'[1,1] // Diff becomes zero when matrices are equal
+
+      // Increment first unmaxed param
+      local increment = 1
+      forv i = 1/`n_params' {
+        local theCurrent = `current'[1,`i']
+        local theMax = `max'[1,`i']
+        if (`theCurrent' < `theMax') & (`increment' == 1) {
+          mat `current'[1,`i'] = `theCurrent' + 1
+          local increment = 0
+        }
+        else if (`theCurrent' == `theMax') & (`increment' == 1) {
+          mat `current'[1,`i'] = 1
+        }
+      }
+
+    }
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -182,6 +223,20 @@ prog def specc_report
       	display "`line'"
       	file read main line
       }
+    }
+
+    forv i = 1/`n_params' {
+      local c`i' : word `i' of `params'
+
+      preserve
+        use `"`using'/specc.dta"' `if', clear
+        qui levelsof method if class == "`c`i''" , local(m`i')
+          local max_`c`i'' : word count `m`i''
+          mat `max'[1,`i'] = `max_`c`i'''
+        qui levelsof description if class == "`c`i''" , local(d`i')
+      restore
+
+      di `" `c`i'' :: `d`i''   "'
     }
   }
 
