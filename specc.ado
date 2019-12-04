@@ -20,6 +20,7 @@ prog def specc
 
   // Allow abbreviations
   if "`subcommand'" == "init" local subcommand = "initialize"
+  if "`subcommand'" == "drop" local subcommand = "remove"
 
   // Make sure some subcommand is specified
   if !inlist("`subcommand'","initialize","remove","new","report","set","run") {
