@@ -169,7 +169,6 @@ prog def specc_run
       forv i = 1/`n_params' {
         local theIndex = `current'[1,`i']
         local theClass = "`c`i''"
-        local theDesc : word `theIndex' of `d`i''
         local theMethod : word `theIndex' of `m`i''
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
       }
@@ -221,9 +220,12 @@ prog def specc_report
       file read main line
       forv i = 1/2 {
       	display "`line'"
-      	file read main line
+      	if `i' == 1 file read main line
       }
     }
+
+    local params = "`line'"
+    local n_params: word count `params'
 
     forv i = 1/`n_params' {
       local c`i' : word `i' of `params'
@@ -231,8 +233,6 @@ prog def specc_report
       preserve
         use `"`using'/specc.dta"' `if', clear
         qui levelsof method if class == "`c`i''" , local(m`i')
-          local max_`c`i'' : word count `m`i''
-          mat `max'[1,`i'] = `max_`c`i'''
         qui levelsof description if class == "`c`i''" , local(d`i')
       restore
 
