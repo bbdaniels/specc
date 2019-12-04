@@ -166,6 +166,7 @@ prog def specc_run
 
     local diff = 1
     local counter = 0
+    cap mat drop _all_results
     while `diff' != 0 {
       local ++counter
       di " "
@@ -179,7 +180,8 @@ prog def specc_run
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
         run `"`using'/`theClass'/`theMethod'.do"'
         if "`theClass'" == "model" {
-          matlist `current'
+          mat _all_results = nullmat(_all_results) ///
+            \ `current' , _specc_results
         }
       }
 
@@ -200,8 +202,7 @@ prog def specc_run
           mat `current'[1,`i'] = 1
         }
       }
-
-    }
+    } // End looping over combinations
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -320,7 +321,8 @@ prog def specc_new
       file write main "local ul =" _n
       file write main "local p =" _n
       file write main "cap mat drop _specc_results" _n
-      file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n _n
+      file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n
+      file write main `"mat colnames _specc_results = "b" "ll" "ul" "p" "' _n _n
     }
     file write main "// End of `description'" _n
     file close main
