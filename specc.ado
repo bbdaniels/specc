@@ -284,6 +284,7 @@ prog def specc_new
       di as err "The `method' method already exists in the `class' class."
       error 110
     }
+  restore
 
   // Append new method dataset for specc storage
   preserve
