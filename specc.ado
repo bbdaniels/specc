@@ -114,7 +114,7 @@ prog def specc_run
 
   // Syntax setup
   syntax using/ , ///
-    [*]
+    [sort] [*]
 
   // Read out execution order
   cap file close main
@@ -159,6 +159,7 @@ prog def specc_run
     forv i = 1/`n_params' {
       local next = `max'[1,`i']
       local total = `total'*`next'
+      local lab`i' = `"0 "                         ""'
     }
 
     // Set up to loop over all differences
@@ -177,6 +178,12 @@ prog def specc_run
         local theIndex = `current'[1,`i']
         local theClass = "`c`i''"
         local theMethod : word `theIndex' of `m`i''
+        preserve
+          use `"`using'/specc.dta"' ///
+            if class == "`theClass'" & method == "`theMethod'" , clear
+          local theDesc = description[1]
+          local lab`i' = `"`lab`i'' `theIndex' "`theDesc'" "'
+        restore
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
         run `"`using'/`theClass'/`theMethod'.do"'
         if "`theClass'" == "model" {
@@ -209,6 +216,7 @@ prog def specc_run
     qui clear
     qui svmat _all_results , n(col)
     sort b
+    if "`sort'" != "" sort `line'
     gen n = _n
 
     forv i = 1/`n_params' {
@@ -216,7 +224,7 @@ prog def specc_run
         (function 0 , range(1 `total') lc(black) lw(thin)) ///
         (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
       , yscale(noline) xscale(noline) xlab(none,notick)  ///
-        ylab(1 "something" 2 "something else" , labsize(tiny)) ytit("`c`i''") ///
+        ylab(`lab`i'' , labsize(tiny) notick) ytit("`c`i''") ///
         nodraw saving(`"`using'/`c`i''.gph"' , replace)
 
       local graphs `"`graphs' `using'/`c`i''.gph"'
