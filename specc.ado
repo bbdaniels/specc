@@ -23,7 +23,7 @@ prog def specc
   if "`subcommand'" == "drop" local subcommand = "remove"
 
   // Make sure some subcommand is specified
-  if !inlist("`subcommand'","initialize","remove","new","report","set","run") {
+  if !inlist("`subcommand'","initialize","remove","new","report","set","run","results") {
     di as err "{bf:specc} requires [initialize], [remove], [report], [new], [set], [run] to be specified. Type {bf:help specc} for details."
     error 197
   }
@@ -108,16 +108,6 @@ end
 // ---------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------------------------
-cap prog drop specc_results
-prog def specc_results
-
-  syntax anything using/ , ///
-    [*]
-
-end
-// ---------------------------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------------------------
 // Run subcommand
 cap prog drop specc_run
 prog def specc_run
@@ -189,7 +179,7 @@ prog def specc_run
         di " `theDesc' (`using'/`theClass'/`theMethod'.do)"
         run `"`using'/`theClass'/`theMethod'.do"'
         if "`theClass'" == "model" {
-          specc results
+          matlist `current'
         }
       }
 
@@ -329,7 +319,7 @@ prog def specc_new
       file write main "local ll =" _n
       file write main "local ul =" _n
       file write main "local p =" _n
-      file write main "cap mat drop _specc_results"
+      file write main "cap mat drop _specc_results" _n
       file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n _n
     }
     file write main "// End of `description'" _n
