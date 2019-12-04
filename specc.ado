@@ -213,7 +213,7 @@ prog def specc_run
 
     tw ///
       (rspike ul ll n , lc(gs12)) ///
-      (scatter b n , lc(black) mc(white) msize(medium)) ///
+      (scatter b n , mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(black) msize(medium)) ///
     , xtit(" ") xlab(1 " " , notick) yscale(noline r(0)) ylab(#6 , notick) ///
       yline(0)
