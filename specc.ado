@@ -62,12 +62,18 @@ cap prog drop specc_remove
 prog def specc_remove
 
   // Syntax setup
-  syntax using/ , ///
-    clear [*]
+  syntax [anything] using/ , ///
+    [*]
+
+  gettoken class anything : anything
+  gettoken method anything : anything
 
   // Create empty dataset for specc storage
-  rm `"`using'/*.*"'
-  rmdir `"`using'"'
+  preserve
+    use `"`using'/specc.dta"' `if', clear
+    drop if class == "`class'" & method == "`method'"
+    save `"`using'/specc.dta"' , replace
+  restore
 
 end
 // ---------------------------------------------------------------------------------------------
