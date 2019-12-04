@@ -211,12 +211,30 @@ prog def specc_run
     sort b
     gen n = _n
 
+    forv i = 1/`n_params' {
+      qui tw ///
+        (function 0 , range(1 `total') lc(black) lw(thin)) ///
+        (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
+      , yscale(noline) xscale(noline) xlab(none,notick)  ///
+        ylab(1 "something" 2 "something else" , labsize(tiny)) ytit("`c`i''") ///
+        nodraw saving(`"`using'/`c`i''.gph"' , replace)
+
+      local graphs `"`graphs' `using'/`c`i''.gph"'
+    }
+
     tw ///
       (rspike ul ll n , lc(gs12)) ///
       (scatter b n , mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(black) msize(medium)) ///
     , xtit(" ") xlab(1 " " , notick) yscale(noline r(0)) ylab(#6 , notick) ///
-      yline(0)
+      yline(0) fysize(66)  ytit("Coefficient") ///
+      nodraw saving(`"`using'/results.gph"' , replace)
+
+    graph combine ///
+      `"`using'/results.gph"' `graphs' ///
+    , c(1) xcom imargin(t=0 b=0)
+
+
   restore
 
 end
