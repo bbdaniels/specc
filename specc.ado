@@ -279,7 +279,7 @@ prog def specc_new
   // Make sure no conflicts
   preserve
     use `"`using'/specc.dta"' , clear
-    count if class == "`class'" & method == "`method'"
+    qui count if class == "`class'" & method == "`method'"
     if `r(N)' > 0 {
       di as err "The `method' method already exists in the `class' class."
       error 110
