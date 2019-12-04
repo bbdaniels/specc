@@ -49,10 +49,9 @@ prog def specc_initialize
   restore
 
   // Set up model class and main method
-  specc new method ///
-    "mat results = nullmat(results) \ [b,ll,ul,p]" ///
+  specc new model main ///
     using "`using'" ///
-    , class(model) method(main) description(Main Specification)
+    , description(Main Specification)
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -292,6 +291,9 @@ prog def specc_new
     file open main using `"`using'/`class'/`method'.do"' , write
     file write main "// `description'" _n _n
     file write main `anything' _n _n
+    if class == "model" {
+      file write main "mat results = nullmat(results) \ [b,ll,ul,p]" _n _n
+    }
     file write main "// End of `description'" _n
     file close main
 
