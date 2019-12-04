@@ -283,7 +283,7 @@ prog def specc_new
   preserve
     use `"`using'/specc.dta"' , clear
     qui count if class == "`class'" & method == "`method'"
-    if `r(N)' > 0 {
+    if (`r(N)' > 0) & ("`replace'" == "") {
       di as err "The `method' method already exists in the `class' class."
       error 110
     }
@@ -312,7 +312,12 @@ prog def specc_new
     file write main "// `description'" _n _n
     file write main `anything' _n _n
     if class == "model" {
-      file write main "mat results = nullmat(results) \ [b,ll,ul,p]" _n _n
+      file write main "local b =" _n
+      file write main "local ll =" _n
+      file write main "local ul =" _n
+      file write main "local p =" _n
+      file write main "cap mat drop _spec_results"
+      file write main "mat _spec_results = [\`b',\`ll',\`ul',\`p']" _n _n
     }
     file write main "// End of `description'" _n
     file close main
