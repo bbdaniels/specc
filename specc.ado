@@ -240,7 +240,7 @@ prog def specc_run
 
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
-    , c(1) xcom imargin(t=0 b=0)
+    , c(1) xcom imargin(t=0 b=0) `options'
 
 
   restore
