@@ -227,7 +227,7 @@ prog def specc_run
         ylab(`lab`i'' , labsize(tiny) notick) ytit("`c`i''") ///
         nodraw saving(`"`using'/`c`i''.gph"' , replace)
 
-      local graphs `"`graphs' `using'/`c`i''.gph"'
+      local graphs `"`graphs' "`using'/`c`i''.gph""'
     }
 
     qui tw ///
@@ -241,6 +241,8 @@ prog def specc_run
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
     , c(1) xcom imargin(t=0 b=0) `options'
+
+    !rm "`using'/results.gph" `graphs'
 
 
   restore
