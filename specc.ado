@@ -232,8 +232,8 @@ prog def specc_run
 
     qui tw ///
       (rspike ul ll n , lc(gs12)) ///
-      (scatter b n , mlc(black) mc(white) msize(medium)) ///
-      (scatter b n if p < 0.05 , mc(black) lc(black) msize(medium)) ///
+      (scatter b n if p >= 0.05, mlc(black) mc(white) msize(medium)) ///
+      (scatter b n if p < 0.05 , mc(black) lc(none) msize(small)) ///
     , xtit(" ") xlab(1 " " , notick) yscale(noline r(0)) ylab(#6 , notick) ///
       yline(0) fysize(66)  ytit("Coefficient") ///
       nodraw saving(`"`using'/results.gph"' , replace)
