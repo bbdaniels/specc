@@ -230,7 +230,7 @@ prog def specc_run
       local graphs `"`graphs' `using'/`c`i''.gph"'
     }
 
-    tw ///
+    qui tw ///
       (rspike ul ll n , lc(gs12)) ///
       (scatter b n , mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(black) msize(medium)) ///
