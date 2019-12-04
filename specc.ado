@@ -71,8 +71,8 @@ prog def specc_remove
   // Create empty dataset for specc storage
   preserve
     use `"`using'/specc.dta"' `if', clear
-    drop if class == "`class'" & method == "`method'"
-    save `"`using'/specc.dta"' , replace
+    qui drop if class == "`class'" & method == "`method'"
+    qui save `"`using'/specc.dta"' , replace
   restore
 
 end
@@ -270,7 +270,7 @@ prog def specc_new
   // Syntax setup
   syntax anything using/ , ///
     DESCription(string asis) ///
-    [*]
+    [replace] [*]
 
   // Get info
   gettoken class anything : anything
@@ -293,6 +293,7 @@ prog def specc_new
 
   // Set up method dofile
   cap mkdir `"`using'/`class'/"' , public
+    if "`replace'" != "" erase `"`using'/`class'/`method'.do"'
     cap file close main
     file open main using `"`using'/`class'/`method'.do"' , write
     file write main "// `description'" _n _n
