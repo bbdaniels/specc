@@ -53,7 +53,7 @@ prog def specc_initialize
   // Set up model class and main method
   specc new model main ///
     using "`using'" ///
-    , description(Main Specification)
+    , description(Main Specification) skipcheck
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -66,21 +66,23 @@ prog def specc_new
   // Syntax setup
   syntax anything using/ , ///
     DESCription(string asis) ///
-    [replace] [*]
+    [replace] [skipcheck] [*]
 
   // Get info
   gettoken class anything : anything
   gettoken method anything : anything
 
   // Make sure no conflicts
-  preserve
-    use `"`using'/specc.dta"' , clear
-    qui count if class == "`class'" & method == "`method'"
-    if (`r(N)' > 0) & ("`replace'" == "") {
-      di as err "The `method' method already exists in the `class' class."
-      error 110
-    }
-  restore
+  if "`skipcheck'" == "" {
+    preserve
+      use `"`using'/specc.dta"' , clear
+      qui count if class == "`class'" & method == "`method'"
+      if (`r(N)' > 0) & ("`replace'" == "") {
+        di as err "The `method' method already exists in the `class' class."
+        error 110
+      }
+    restore
+  }
 
   // Append new method dataset for specc storage
   preserve
