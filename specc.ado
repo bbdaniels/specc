@@ -106,6 +106,15 @@ prog def specc_set
   file write main "// End of SPECC Runfile" _n
   file close main
 
+  // Read out execution order
+  file open main using `"`using'/specc.do"' , read
+    file read main line
+    forv i = 1/2 {
+      display "`line'"
+      if `i' == 1 file read main line
+    }
+  file close main
+
 end
 // ---------------------------------------------------------------------------------------------
 
