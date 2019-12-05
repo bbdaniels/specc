@@ -24,7 +24,7 @@ prog def specc
   if "`subcommand'" == "drop" local subcommand = "remove"
 
   // Make sure some subcommand is specified
-  if !inlist("`subcommand'","initialize","remove","new","report","set","run","results") {
+  if !inlist("`subcommand'","initialize","remove","new","report","set","run") {
     di as err "{bf:specc} requires [initialize], [remove], [report], [new], [set], [run] to be specified. Type {bf:help specc} for details."
     error 197
   }
@@ -59,6 +59,67 @@ end
 // ---------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------------------------
+// NEW METHOD subcommand
+cap prog drop specc_new
+prog def specc_new
+
+  // Syntax setup
+  syntax anything using/ , ///
+    DESCription(string asis) ///
+    [replace] [*]
+
+  // Get info
+  gettoken class anything : anything
+  gettoken method anything : anything
+
+  // Make sure no conflicts
+  preserve
+    use `"`using'/specc.dta"' , clear
+    qui count if class == "`class'" & method == "`method'"
+    if (`r(N)' > 0) & ("`replace'" == "") {
+      di as err "The `method' method already exists in the `class' class."
+      error 110
+    }
+  restore
+
+  // Append new method dataset for specc storage
+  preserve
+  qui {
+  clear
+    set obs 1
+    gen class = "`class'"
+    gen method = "`method'"
+    gen dofile = "/`class'/`method'.do"
+    gen timestamp = "`c(current_date)' `c(current_time)'"
+    gen description = "`description'"
+
+    append using `"`using'/specc.dta"'
+      save `"`using'/specc.dta"' , replace
+  }
+
+  // Set up method dofile
+  cap mkdir `"`using'/`class'/"' , public
+    if "`replace'" != "" erase `"`using'/`class'/`method'.do"'
+    cap file close main
+    file open main using `"`using'/`class'/`method'.do"' , write
+    file write main "// `description'" _n _n
+    file write main `anything' _n _n
+    if class == "model" {
+      file write main "local b =" _n
+      file write main "local ll =" _n
+      file write main "local ul =" _n
+      file write main "local p =" _n
+      file write main "cap mat drop _specc_results" _n
+      file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n
+      file write main `"mat colnames _specc_results = "b" "ll" "ul" "p" "' _n _n
+    }
+    file write main "// End of `description'" _n
+    file close main
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
 // Removal subcommand
 cap prog drop specc_remove
 prog def specc_remove
@@ -82,7 +143,7 @@ end
 // ---------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------------------------
-// Build subcommand
+// SET subcommand
 cap prog drop specc_set
 prog def specc_set
 
@@ -114,6 +175,68 @@ prog def specc_set
       if `i' == 1 file read main line
     }
   file close main
+
+end
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// Report subcommand
+cap prog drop specc_report
+prog def specc_report
+
+  // Syntax setup
+  syntax [anything] using/ [if], ///
+    [sort] [*]
+
+  // Load and display report
+  if "`anything'" == "" {
+    preserve
+      use `"`using'/specc.dta"' `if', clear
+      if "`sort'" != "" sort class method
+      li
+    restore
+
+    cap confirm file `"`using'/specc.do"'
+    if _rc == 0 {
+      di "SPECC Runfile detected at {browse `using'/specc.do}."
+      cap file close main
+      file open main using `"`using'/specc.do"' , read
+      file read main line
+      forv i = 1/2 {
+      	display "`line'"
+      	if `i' == 1 file read main line
+      }
+    }
+
+    local params = "`line'"
+    local n_params: word count `params'
+
+    forv i = 1/`n_params' {
+      local c`i' : word `i' of `params'
+
+      preserve
+        use `"`using'/specc.dta"' `if', clear
+        qui levelsof method if class == "`c`i''" , local(m`i')
+        qui levelsof description if class == "`c`i''" , local(d`i')
+      restore
+
+      di `" `c`i'' :: `d`i''   "'
+    }
+  }
+
+  // Display contents if requested
+  if "`anything'" != "" {
+    gettoken class anything : anything
+    gettoken method anything : anything
+    cap file close main
+    file open main using `"`using'/`class'/`method'.do"' , read
+    file read main line
+    while r(eof)==0 {
+    	display "`line'"
+    	file read main line
+    }
+    file close main
+  }
 
 end
 // ---------------------------------------------------------------------------------------------
@@ -258,129 +381,6 @@ prog def specc_run
 
 
   restore
-
-end
-// ---------------------------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------------------------
-// Report subcommand
-cap prog drop specc_report
-prog def specc_report
-
-  // Syntax setup
-  syntax [anything] using/ [if], ///
-    [sort] [*]
-
-  // Load and display report
-  if "`anything'" == "" {
-    preserve
-      use `"`using'/specc.dta"' `if', clear
-      if "`sort'" != "" sort class method
-      li
-    restore
-
-    cap confirm file `"`using'/specc.do"'
-    if _rc == 0 {
-      di "SPECC Runfile detected at {browse `using'/specc.do}."
-      cap file close main
-      file open main using `"`using'/specc.do"' , read
-      file read main line
-      forv i = 1/2 {
-      	display "`line'"
-      	if `i' == 1 file read main line
-      }
-    }
-
-    local params = "`line'"
-    local n_params: word count `params'
-
-    forv i = 1/`n_params' {
-      local c`i' : word `i' of `params'
-
-      preserve
-        use `"`using'/specc.dta"' `if', clear
-        qui levelsof method if class == "`c`i''" , local(m`i')
-        qui levelsof description if class == "`c`i''" , local(d`i')
-      restore
-
-      di `" `c`i'' :: `d`i''   "'
-    }
-  }
-
-  // Display contents if requested
-  if "`anything'" != "" {
-    gettoken class anything : anything
-    gettoken method anything : anything
-    cap file close main
-    file open main using `"`using'/`class'/`method'.do"' , read
-    file read main line
-    while r(eof)==0 {
-    	display "`line'"
-    	file read main line
-    }
-    file close main
-  }
-
-end
-// ---------------------------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------------------------
-// NEW METHOD subcommand
-cap prog drop specc_new
-prog def specc_new
-
-  // Syntax setup
-  syntax anything using/ , ///
-    DESCription(string asis) ///
-    [replace] [*]
-
-  // Get info
-  gettoken class anything : anything
-  gettoken method anything : anything
-
-  // Make sure no conflicts
-  preserve
-    use `"`using'/specc.dta"' , clear
-    qui count if class == "`class'" & method == "`method'"
-    if (`r(N)' > 0) & ("`replace'" == "") {
-      di as err "The `method' method already exists in the `class' class."
-      error 110
-    }
-  restore
-
-  // Append new method dataset for specc storage
-  preserve
-  qui {
-  clear
-    set obs 1
-    gen class = "`class'"
-    gen method = "`method'"
-    gen dofile = "/`class'/`method'.do"
-    gen timestamp = "`c(current_date)' `c(current_time)'"
-    gen description = "`description'"
-
-    append using `"`using'/specc.dta"'
-      save `"`using'/specc.dta"' , replace
-  }
-
-  // Set up method dofile
-  cap mkdir `"`using'/`class'/"' , public
-    if "`replace'" != "" erase `"`using'/`class'/`method'.do"'
-    cap file close main
-    file open main using `"`using'/`class'/`method'.do"' , write
-    file write main "// `description'" _n _n
-    file write main `anything' _n _n
-    if class == "model" {
-      file write main "local b =" _n
-      file write main "local ll =" _n
-      file write main "local ul =" _n
-      file write main "local p =" _n
-      file write main "cap mat drop _specc_results" _n
-      file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n
-      file write main `"mat colnames _specc_results = "b" "ll" "ul" "p" "' _n _n
-    }
-    file write main "// End of `description'" _n
-    file close main
 
 end
 // ---------------------------------------------------------------------------------------------
