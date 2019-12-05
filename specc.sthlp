@@ -87,6 +87,7 @@ to create a matrix holding the key parameters for the specification curve.{p_end
 {dlgtab 0:Removing choice classes and methods}
 
 {p 2 4}{cmdab:specc remove} {it:class_name method_name}
+{break}{help using} {it:"/specc/directory/"} 
 {p_end}
 
 {p 2 4 } This function will remove any method matching the specified class and method names.
