@@ -64,7 +64,7 @@ cap prog drop specc_remove
 prog def specc_remove
 
   // Syntax setup
-  syntax [anything] using/ , ///
+  syntax anything using/ , ///
     [*]
 
   gettoken class anything : anything
