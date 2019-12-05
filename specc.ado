@@ -5,6 +5,7 @@
 // Main command
 cap prog drop specc
 prog def specc
+  version 13.1
 
   // Syntax setup
   syntax [anything] [using/]  ///
