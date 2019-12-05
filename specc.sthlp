@@ -1,55 +1,56 @@
 {smcl}
-{* 7 Jun 2019}{...}
+{* 7 Dec 2019}{...}
 {hline}
-help for {hi:iecodebook}
+help for {hi:specc}
 {hline}
-
-    _                     __     __                __
-   (_)__  _________  ____/ /__  / /_  ____  ____  / /__
-  / / _ \/ ___/ __ \/ __  / _ \/ __ \/ __ \/ __ \/ //_/
- / /  __/ /__/ /_/ / /_/ /  __/ /_/ / /_/ / /_/ / ,<
-/_/\___/\___/\____/\__,_/\___/_.___/\____/\____/_/|_|
-
 
 {title:Title}
 
-{p}{cmdab:iecodebook} {hline 2} performs common data cleaning tasks using dataset definitions (codebooks) written in Excel files. {p_end}
-{p}For more detailed instructions, please refer to the {browse "https://dimewiki.worldbank.org/wiki/Iecodebook":iecodebook DIME Wiki entry}.
+{p 2 4}{cmdab:specc} {hline 2} manages component dofiles and alternative specifications
+for the creation of specification curves in Stata.
 
 {title:Description}
 {marker description}{...}
 
-{p 2 4}{cmdab:iecodebook} is designed to automate repetitive data cleaning tasks in two situations:
-{bf:apply}, where a large number of variables need to have arbitrary {help rename}, {help recode}, or {help label} commands applied to them;
-and {bf:append}, where two or more datasets need to be harmonized to have the same variable names, labels, and value labels ("choices") in order to be appended together.
-{cmdab:iecodebook} also provides an {bf:export} utility so that a human-readable record of the variables and their labels in a dataset
-can be instantly created at any time.
-{p_end}
-
-{p 2 4}The purpose of {cmdab:iecodebook} is therefore to:{break}
-(1) reduce the Stata coding required for an arbitrary number of commands, usually to a single command; and {break}
-(2) to leave a human-readable record of the adjustments that were made to each dataset in Excel.
-{p_end}
-
-{p 2 4}For the {bf:apply} and {bf:append} syntaxes, {cmdab:iecodebook} provides a {bf:template} command
-that will correctly set up the appropriate codebook or harmonization template.
-In both cases, you then need to manually complete the template in order to tell the command the exact adjustments that you want to be made in the dataset.
-This completed template becomes a more readable record of the changes made in data cleaning than a dofile typically is.
+{p 2 4}{cmdab:specc} is designed to automate the creation of specification curves.
+First, it enables the assisted creation of sets of alternative options ("methods")
+for each choice in the estimation of a given statistical parameter
+(such as outcome definition, covariate choice, and functional form; i.e. "the garden of forking paths").
+Second, it automatically assembles all of these individual decisions
+into the full set of possible specifications formed by interacting these various choices.
+In other words, the intent of {cmdab:specc} is to reduce the programming task
+for an exponential number of specifications to a linear amount of coding.
 {p_end}
 
 {title:Functions}
 
-{p 2 4}{cmdab:iecodebook template}{break} creates an Excel codebook template that describes the current or targeted dataset(s),
-with empty columns for you to specify the changes or harmonizations for the other {bf:iecodebook} commands.{p_end}
-{break}
-{p 2 4}{cmdab:iecodebook apply}{break} reads an Excel codebook that specifies
-renames, recodes, variable labels, and value labels, and applies them to the current dataset.{p_end}
-{break}
-{p 2 4}{cmdab:iecodebook append}{break} reads an Excel codebook that specifies how variables should be harmonized across
-two or more datasets - rename, recode, variable labels, and value labels - applies the harmonization, and appends the datasets.{p_end}
-{break}
-{p 2 4}{cmdab:iecodebook export}{break} creates an Excel codebook that describes the current dataset,
-and optionally produces an export version of the dataset with only variables used in specified dofiles.{p_end}
+{p 2 4}{cmdab:specc initialize}{break} creates the directory and database
+that the command will use to build a particular specification curve,
+and need only be used at the first call of the command.
+
+{p 2 4}{cmdab:specc new}{break} is used to create a new method
+which represents a possible choice at some stage in the choice tree;
+it creates a dofile to hold the instructions and a registry entry for the method.
+
+{p 2 4}{cmdab:specc remove}{break} is used to delete a method
+which represents a possible choice at some stage in the choice tree;
+it deletes the corresponding dofile and registry entry for the method.
+
+{p 2 4}{cmdab:specc set}{break} is used to inform the command
+the order in which the choices ("classes") are to be iterated over.
+This sequence of choices must end with the estimation ("model") class
+so that the estimated parameters are passed back to the results.
+
+{p 2 4}{cmdab:specc report}{break} returns the current state
+of the {cmdab:specc} registry (i.e., the available choice classes and methods).
+It also reports whether an execution order has been {cmdab:set}
+and what the corresponding methods for the ordered classes will be.
+
+{p 2 4}{cmdab:specc run}{break} calculates and executes the full set
+of possible choices over the entire range of classes that are {cmdab:set}
+and returns the results in the form of a specification curve,
+reporting the combination of methods that corresponds to each estimate.
+
 
 {title:Syntax}
 
