@@ -69,12 +69,13 @@ prog def specc_remove
   gettoken class anything : anything
   gettoken method anything : anything
 
-  // Create empty dataset for specc storage
+  // Remove marked method
   preserve
     use `"`using'/specc.dta"' `if', clear
     qui drop if class == "`class'" & method == "`method'"
     qui save `"`using'/specc.dta"' , replace
   restore
+  !rm "`using'/`class'/`method'.do"
 
 end
 // ---------------------------------------------------------------------------------------------
