@@ -160,6 +160,5 @@ containing the results of each of the estimated specifications.{p_end}
 "Specification curve: Descriptive and inferential statistics on all reasonable specifications."
 Available at SSRN 2694998 (2015).{p_end}
 
-
 {p 2 4} Hans H. Sievertsen "Specification curve using Stata"
 {browse "https://github.com/hhsievertsen/speccurve"}{p_end}
