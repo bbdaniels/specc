@@ -65,7 +65,7 @@ prog def specc_new
 
   // Syntax setup
   syntax anything using/ , ///
-    DESCription(string asis) ///
+    [Code(string asis)] ///
     [replace] [skipcheck] [*]
 
   // Get info
@@ -93,7 +93,7 @@ prog def specc_new
     gen method = "`method'"
     gen dofile = "/`class'/`method'.do"
     gen timestamp = "`c(current_date)' `c(current_time)'"
-    gen description = "`description'"
+    gen description = "`anything'"
 
     append using `"`using'/specc.dta"'
       save `"`using'/specc.dta"' , replace
@@ -104,8 +104,8 @@ prog def specc_new
     if "`replace'" != "" erase `"`using'/`class'/`method'.do"'
     cap file close main
     file open main using `"`using'/`class'/`method'.do"' , write
-    file write main "// `description'" _n _n
-    file write main `anything' _n _n
+    file write main "// `anything'" _n _n
+    file write main `code' _n _n
     if class == "model" {
       file write main "local b =" _n
       file write main "local ll =" _n
@@ -115,7 +115,7 @@ prog def specc_new
       file write main "mat _specc_results = [\`b',\`ll',\`ul',\`p']" _n
       file write main `"mat colnames _specc_results = "b" "ll" "ul" "p" "' _n _n
     }
-    file write main "// End of `description'" _n
+    file write main "// End of `anything'" _n
     file close main
 
 end
