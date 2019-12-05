@@ -295,7 +295,7 @@ prog def specc_run
     forv i = 1/`n_params' {
       local next = `max'[1,`i']
       local total = `total'*`next'
-      local lab`i' = `"0 "                         ""'
+      local lab`i' = `"0 "                ""'
     }
 
     // Set up to loop over all differences
@@ -367,7 +367,7 @@ prog def specc_run
       , yscale(noline) xscale(noline) xlab(none,notick)  ///
         ylab(`lab`i'' , labsize(tiny) notick) ytit(" ") ///
         nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts' ///
-        title("`c`i''", justification(left) color(black) span pos(11) size(tiny))
+        title("`c`i''", justification(left) color(black) span pos(11) size(small))
 
       local graphs `"`graphs' "`using'/`c`i''.gph""'
     }
@@ -383,7 +383,7 @@ prog def specc_run
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
     , c(1) xcom imargin(t=0 b=0) `options' ///
-      graphregion(color(white) lc(white)) bgcolor(white)
+      graphregion(color(white) lc(white))
 
     !rm "`using'/results.gph" `graphs'
 
