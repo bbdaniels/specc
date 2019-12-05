@@ -357,7 +357,7 @@ prog def specc_run
     gen n = _n
 
     local tw_opts ///
-    	graphregion(color(white) lc(white) lw(med)) bgcolor(white) ///
+    	graphregion(color(white) lc(white)) bgcolor(white) ///
     	ylab(,angle(0) nogrid) legend(off)
 
     forv i = 1/`n_params' {
@@ -365,8 +365,9 @@ prog def specc_run
         (function 0 , range(1 `total') lc(black) lw(thin)) ///
         (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
       , yscale(noline) xscale(noline) xlab(none,notick)  ///
-        ylab(`lab`i'' , labsize(tiny) notick) ytit("`c`i''") ///
-        nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts'
+        ylab(`lab`i'' , labsize(tiny) notick) ytit(" ") ///
+        nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts' ///
+        title("`c`i''", justification(left) color(black) span pos(11) size(tiny))
 
       local graphs `"`graphs' "`using'/`c`i''.gph""'
     }
@@ -381,7 +382,8 @@ prog def specc_run
 
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
-    , c(1) xcom imargin(t=0 b=0) `options'
+    , c(1) xcom imargin(t=0 b=0) `options' ///
+      graphregion(color(white) lc(white)) bgcolor(white)
 
     !rm "`using'/results.gph" `graphs'
 
