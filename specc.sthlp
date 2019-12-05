@@ -87,7 +87,7 @@ to create a matrix holding the key parameters for the specification curve.{p_end
 {dlgtab 0:Removing choice classes and methods}
 
 {p 2 4}{cmdab:specc remove} {it:class_name method_name}
-{break}{help using} {it:"/specc/directory/"} 
+{break}{help using} {it:"/specc/directory/"}
 {p_end}
 
 {p 2 4 } This function will remove any method matching the specified class and method names.
@@ -150,7 +150,7 @@ containing the results of each of the estimated specifications.{p_end}
 		 {browse "https://github.com/bbdaniels/specc"}
 		 {p_end}
 
-{title:References}
+{title:References and Acknowledgements}
 
 {p 2 4}The Garden of Forking Paths{break}
 		 {browse "https://statmodeling.stat.columbia.edu/2019/08/01/the-garden-of-forking-paths/"}
@@ -159,3 +159,7 @@ containing the results of each of the estimated specifications.{p_end}
 {p 2 4}Simonsohn, Uri, Joseph P. Simmons, and Leif D. Nelson.
 "Specification curve: Descriptive and inferential statistics on all reasonable specifications."
 Available at SSRN 2694998 (2015).
+
+
+{p 2 4} Hans H. Sievertsen "Specification curve using Stata"
+{browse "https://github.com/hhsievertsen/speccurve"}
