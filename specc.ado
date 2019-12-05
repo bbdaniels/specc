@@ -356,13 +356,17 @@ prog def specc_run
     if "`save'" != "" save `"`using'/results.dta"' , replace
     gen n = _n
 
+    local tw_opts ///
+    	graphregion(color(white) lc(white) lw(med)) bgcolor(white) ///
+    	ylab(,angle(0) nogrid) legend(off)
+
     forv i = 1/`n_params' {
       qui tw ///
         (function 0 , range(1 `total') lc(black) lw(thin)) ///
         (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
       , yscale(noline) xscale(noline) xlab(none,notick)  ///
         ylab(`lab`i'' , labsize(tiny) notick) ytit("`c`i''") ///
-        nodraw saving(`"`using'/`c`i''.gph"' , replace)
+        nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts'
 
       local graphs `"`graphs' "`using'/`c`i''.gph""'
     }
@@ -372,7 +376,7 @@ prog def specc_run
       (scatter b n if p >= 0.05, mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(none) msize(small)) ///
     , xtit(" ") xlab(1 " " , notick) yscale(noline r(0)) ylab(#6 , notick) ///
-      yline(0) fysize(66)  ytit("Coefficient") ///
+      yline(0) fysize(66)  ytit("Coefficient") `tw_opts' ///
       nodraw saving(`"`using'/results.gph"' , replace)
 
     graph combine ///
