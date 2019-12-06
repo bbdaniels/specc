@@ -162,3 +162,9 @@ Available at SSRN 2694998 (2015).{p_end}
 
 {p 2 4} Hans H. Sievertsen "Specification curve using Stata"
 {browse "https://github.com/hhsievertsen/speccurve"}{p_end}
+
+{title:Notes}
+
+{p}{bf: specc} is open for development on {https://github.com/bbdaniels/specc":GitHub}.
+Submit bugs and feature requests {browse "https://github.com/bbdaniels/specc/issues":here}.
+If you like {bf:specc}, be sure to visit my {browse "http://www.benjaminbdaniels.com":homepage}.{p_end}
