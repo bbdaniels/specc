@@ -51,9 +51,9 @@ prog def specc_initialize
   restore
 
   // Set up model class and main method
-  specc new model main ///
+  specc new model main Main Specification ///
     using "`using'" ///
-    , description(Main Specification) skipcheck
+    , skipcheck
 
 end
 // ---------------------------------------------------------------------------------------------
