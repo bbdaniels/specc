@@ -283,7 +283,17 @@ prog def specc_run
           local max_`c`i'' : word count `m`i''
           mat `max'[1,`i'] = `max_`c`i'''
         qui levelsof description if class == "`c`i''" , local(d`i')
+
       restore
+
+      // Get longest label length
+      local count : word count `d`i''
+      local length`i' = 0
+      forv label = 1/`count' {
+        local thisLabel : word `label' of `d`i''
+        local thisLength = length("`thisLabel'")
+        local length`i' = max(`length`i'',`thisLength')
+      }
 
       di `" `c`i'' :: `d`i''   "'
     }
@@ -295,7 +305,6 @@ prog def specc_run
     forv i = 1/`n_params' {
       local next = `max'[1,`i']
       local total = `total'*`next'
-      local lab`i' = `"0 "                ""'
     }
 
     // Set up to loop over all differences
@@ -361,12 +370,16 @@ prog def specc_run
     	ylab(,angle(0) nogrid) legend(off)
 
     forv i = 1/`n_params' {
+
+      local offset = 8 -0.6*(`length`i'') // Much hacking :-(
+
       qui tw ///
         (function 0 , range(1 `total') lc(black) lw(thin)) ///
         (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
       , yscale(noline) xscale(noline) xlab(none,notick)  ///
         ylab(`lab`i'' , labsize(tiny) notick) ytit(" ") ///
         nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts' ///
+        ytitle(, margin(0 `offset'  0 0 )) ///
         title("`c`i''", justification(left) color(black) span pos(11) size(small))
 
       local graphs `"`graphs' "`using'/`c`i''.gph""'
