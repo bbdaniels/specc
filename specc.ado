@@ -1,5 +1,6 @@
-// Program file to manage specification curves
-
+// VERSION 1.0
+// Benjamin Daniels
+// bbdaniels@gmail.com
 
 // ---------------------------------------------------------------------------------------------
 // Main command
