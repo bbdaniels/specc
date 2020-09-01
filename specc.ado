@@ -402,10 +402,10 @@ tempfile theData
       (rspike ul ll n , lc(gs12)) ///
       (scatter b n if p >= 0.05, mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(none) msize(small)) ///
-    , xtit(" ") xlab(none,notick) xscale(noline) yscale(noline r(0)) ylab(#6 , notick) ///
+    , xtit(" ") xlab(none,notick) xscale(noline) yscale(noline r(0)) ylab(#6 , grid) ///
       yline(0) fysize(66)  ytit("Coefficient") `tw_opts' ///
       nodraw saving(`"`using'/results.gph"' , replace) ///
-      plotregion(lcolor(white))
+      plotregion(lcolor(black))
 
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
