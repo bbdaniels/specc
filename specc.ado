@@ -1,5 +1,6 @@
-// Program file to manage specification curves
-
+// VERSION 1.0
+// Benjamin Daniels
+// bbdaniels@gmail.com
 
 // ---------------------------------------------------------------------------------------------
 // Main command
@@ -252,6 +253,9 @@ prog def specc_run
   syntax using/ , ///
     [sort] [save] [*]
 
+tempfile theData
+  save `theData'
+
   // Read out execution order
   cap file close main
   file open main using `"`using'/specc.do"' , read
@@ -283,7 +287,17 @@ prog def specc_run
           local max_`c`i'' : word count `m`i''
           mat `max'[1,`i'] = `max_`c`i'''
         qui levelsof description if class == "`c`i''" , local(d`i')
+
       restore
+
+      // Get longest label length
+      local count : word count `d`i''
+      local length`i' = 0
+      forv label = 1/`count' {
+        local thisLabel : word `label' of `d`i''
+        local thisLength = length("`thisLabel'")
+        local length`i' = max(`length`i'',`thisLength')
+      }
 
       di `" `c`i'' :: `d`i''   "'
     }
@@ -295,7 +309,6 @@ prog def specc_run
     forv i = 1/`n_params' {
       local next = `max'[1,`i']
       local total = `total'*`next'
-      local lab`i' = `"0 "                ""'
     }
 
     // Set up to loop over all differences
@@ -348,7 +361,6 @@ prog def specc_run
     } // End looping over combinations
 
   // Build graph
-  preserve
     qui clear
     qui svmat _all_results , n(col)
     sort b
@@ -357,17 +369,31 @@ prog def specc_run
     gen n = _n
 
     local tw_opts ///
-    	graphregion(color(white) lc(white)) bgcolor(white) ///
-    	ylab(,angle(0) nogrid) legend(off)
+    	graphregion(color(white) lc(white) lwidth(none)) bgcolor(white) ///
+    	ylab(,angle(0) nogrid) legend(off) plotregion(margin(medium))
 
     forv i = 1/`n_params' {
-      qui tw ///
-        (function 0 , range(1 `total') lc(black) lw(thin)) ///
-        (scatter `c`i'' n , msize(medlarge) m(X) mc(black)) ///
-      , yscale(noline) xscale(noline) xlab(none,notick)  ///
-        ylab(`lab`i'' , labsize(tiny) notick) ytit(" ") ///
-        nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts' ///
-        title("`c`i''", justification(left) color(black) span pos(11) size(small))
+
+      local offset = 8 -0.6*(`length`i'') // Much hacking :-(
+
+      preserve
+
+        qui xtset `c`i'' n
+        qui tsfill , full
+
+        qui tw ///
+          (scatter `c`i'' n if b != ., msize(medlarge) m(X) mc(black)) ///
+          (scatter `c`i'' n if b == ., msize(*.1) m(.) mc(gray)) ///
+        , yscale(noline) xscale(noline) xlab(none,notick)  ///
+          ylab(`lab`i'' , labsize(tiny) notick) ytit(" ") ///
+          nodraw saving(`"`using'/`c`i''.gph"' , replace) `tw_opts' ///
+          ytitle(, margin(0 `offset'  0 0 )) ///
+          xtitle(" ", margin(0 `offset'  0 0 )) ///
+          title("`c`i''", justification(left) color(black) span pos(11) size(small)) ///
+          plotregion(lcolor(black))
+
+      restore
+
 
       local graphs `"`graphs' "`using'/`c`i''.gph""'
     }
@@ -376,20 +402,21 @@ prog def specc_run
       (rspike ul ll n , lc(gs12)) ///
       (scatter b n if p >= 0.05, mlc(black) mc(white) msize(medium)) ///
       (scatter b n if p < 0.05 , mc(black) lc(none) msize(small)) ///
-    , xtit(" ") xlab(1 " " , notick) yscale(noline r(0)) ylab(#6 , notick) ///
+    , xtit(" ") xlab(none,notick) xscale(noline) yscale(noline r(0)) ylab(#6 , grid) ///
       yline(0) fysize(66)  ytit("Coefficient") `tw_opts' ///
-      nodraw saving(`"`using'/results.gph"' , replace)
+      nodraw saving(`"`using'/results.gph"' , replace) ///
+      plotregion(lcolor(black))
 
     graph combine ///
       `"`using'/results.gph"' `graphs' ///
-    , c(1) xcom imargin(t=0 b=0) `options' ///
+    , c(1) xcom imargin(t=0 b=0) ysize(6) `options' ///
       graphregion(color(white) lc(white))
 
     !rm "`using'/results.gph" `graphs'
 
 
-  restore
 
+use `theData' , clear // Restore original data
 end
 // ---------------------------------------------------------------------------------------------
 
